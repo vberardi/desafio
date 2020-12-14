@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+
+  rabbitmq:
+    image: rabbitmq:3.6.5-management
+    volumes:
+      - ./docker/rabbitmq-definitions.json:/opt/definitions.json:ro
+      - ./docker/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+    networks:
+      desafio:
+        ipv4_address: 10.5.0.20
+    ports:
+      - 15672:15672
+      - 5672:5672
+      - 25676:25676
+
+  mongodb:
+    image: mongo:4.2
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: teste
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+      MONGO_INITDB_DATABASE: desafio
+    ports:
+      - 27017:27017
+    networks:
+      desafio:
+        ipv4_address: 10.5.0.30
+    volumes:
+      - ./docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro   
+
+  pedidos:
+    build: ./docker/
+    ports:
+      - 8080:8080
+    volumes:
+      - "./pedidos:/var/www/html/"
+    environment:
+      - TZ=America/Sao_Paulo
+    networks:
+      desafio:
+        ipv4_address: 10.5.0.10
+    command: bash -c "composer install --working-dir=/var/www/html/ && php -S 0.0.0.0:8080 -t /var/www/html/public/"
+
+  pagamentos:
+    build: ./docker/
+    volumes:
+      - "./pagamentos:/var/www/html/"
+    environment:
+      - TZ=America/Sao_Paulo
+    networks:
+      desafio:
+        ipv4_address: 10.5.0.40
+    command: bash -c "composer install --working-dir=/var/www/html/ && sleep 10 && php /var/www/html/worker.php"
+
+networks:
+  desafio:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16

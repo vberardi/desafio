@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Desafio</title>
+	<style>
+		body{font-family: sans-serif; background-color: #ddd;}
+		#pedido{width: 40%; height: 350px;}
+		#pedido_random{width: 40%; height: 150px; margin-top: 60px;}
+		#grafico_filas{width: 55%; height: 150px; right:10px; top:50px; position: absolute; }
+		#respostas{width: 55%; height: 60%; right:10px; top:250px; position: absolute; }
+		.b{ border:1px solid; width: 90%; height: 90%; margin: 5px 0; padding: 5px; background-color: white;}
+		#respostas_resultado, #random_resultado, #respostas_fila{ overflow: auto; font-size: 12px;}
+		.l{font-size: 10px; cursor: pointer; color: blue; text-decoration: underline;}
+		table, th, td { border: 1px solid; border-collapse: collapse; padding: 2px;}
+		.c{ background-color: #ccc; }
+		.ac{align: center;}
+	</style>
+</head>
+<body>
+
+<h1><u>Desafio</u></h1>
+<div id="pedido">
+	<strong>pedido</strong>
+	<div class="b">
+		<p><strong>carrinho:</strong>
+			<table style="width: 300px;">
+				<tr style="background-color: #aaa;"><td><strong>Item</strng></td><td><strong>Quantidade</strong></td></tr>
+				<tr><td class="c">Discos Vinil (R$ 10,00)</td><td class="ac"><select id="item1"></select></td></tr>
+				<tr><td class="c">Toca Vinil (R$ 100.00)</td><td class="ac"><select id="item2"></select></td></tr>
+			</table>
+		</p>
+		<p><strong>pagamento:</strong>
+			<table style="width: 300px;">
+				<tr><td class="c">Valor da compra</td><td ><span id="valor"></span></td></tr>
+				<tr><td class="c">Parcelas</td><td class="ac"><select id="parcelas"></select></td></tr>
+				<tr><td class="c">Cartão</td><td class="ac"><select id="cartao"><option>4000000000000010</option><option>4000000000000028</option></select></td></tr>
+			</table>
+		</p>
+		<input type="button" value="Enviar" onclick="pedido()">
+	</div>
+
+</div>
+
+
+<div id="pedido_random">
+	<strong>pedido_random</strong>
+	<div class="b">
+		<br/>Qtd: <input type="text" value="5" id="qtd_rand">
+		<input type="button" value="Enviar" onclick="pedido_random()">
+		<br/><br/><div id="random_resultado"></div>
+	</div>
+</div>
+
+
+
+<div id="grafico_filas">
+	<strong>grafico_filas</strong>
+	<div id="respostas_fila" class="b"></div>
+</div>
+
+
+<div id="respostas">
+	<strong>respostas</strong> 
+	<span  class="l" onclick="limpa_respostas()">limpar</span>
+	<div class="b" id="respostas_resultado"></div>
+</div>
+
+
+
+<script>
+function _dt_brl() {
+	var date = new Date();
+	date.setHours(date.getHours() - 3);
+	return date.toISOString().replace('T','_').replace('Z','');
+}
+
+
+function popula_select(sel, qte, idx) {
+	var select = document.getElementById(sel);
+	for (var i = 1; i <= qte; i++) {
+		var option = document.createElement("option");
+		option.text = i;
+		select.add(option);
+	}
+	select.selectedIndex = --idx;
+}
+
+popula_select("item1", 10, 10);
+popula_select("item2", 3, 1);
+popula_select("parcelas", 5, 5);
+
+function atualiza_valor() {
+	var i_sel1 = document.getElementById("item1").selectedIndex;
+	var qtd_item1 = document.getElementById("item1").options[i_sel1].text;
+	var i_sel2 = document.getElementById("item2").selectedIndex;
+	var qtd_item2 = document.getElementById("item2").options[i_sel2].text;
+	var v = (qtd_item1 * 10) + (qtd_item2 * 100);
+	var valor = document.getElementById("valor");
+	valor.innerHTML = `R$ ${v},00`;
+}
+
+document.querySelector('#item1').addEventListener('change',function(){ atualiza_valor(); })
+document.querySelector('#item2').addEventListener('change',function(){ atualiza_valor(); })
+
+atualiza_valor(); 
+
+function limpa_respostas() {
+	var d = document.getElementById('respostas_resultado');
+	d.innerHTML = '';
+}
+
+var qtd_rand = 0;
+
+function pedido_random() {
+	var qtd = document.getElementById('qtd_rand').value;
+	qtd_rand = qtd;
+	atualiza_res_rand();
+	for (var i = 1; i <= qtd; i++) {
+		var qtd_item1 = Math.floor(Math.random() * 10) + 1;
+		var qtd_item2 = Math.floor(Math.random() * 3) + 1;
+		var qtd_parcelas = Math.floor(Math.random() * 5) + 1;
+		var cartao = (Math.floor(Math.random() * 2) == 0) ? '4000000000000010' : '4000000000000028';
+		var valor = (qtd_item1 * 10) + (qtd_item2 * 100);
+		enviar_pedido(qtd_item1, qtd_item2, qtd_parcelas, cartao, `R$ ${valor},00`);
+	}
+}
+
+function atualiza_res_rand() {
+	var div_rand = document.getElementById('random_resultado');
+	if(qtd_rand == 0)
+	{
+		div_rand.innerHTML = 'envio <strong>finalizado</strong>!';
+	}
+	else
+	{
+		div_rand.innerHTML = `pedidos na fila de envio: <strong>${qtd_rand}</strong>`;	
+	}	
+}
+
+function pedido() {
+	var i_sel1 = document.getElementById("item1").selectedIndex;
+	var qtd_item1 = document.getElementById("item1").options[i_sel1].text;
+	
+	var i_sel2 = document.getElementById("item2").selectedIndex;
+	var qtd_item2 = document.getElementById("item2").options[i_sel2].text;
+
+	var i_parcelas = document.getElementById("parcelas").selectedIndex;
+	var qtd_parcelas = document.getElementById("parcelas").options[i_parcelas].text;
+	
+	var i_cartao = document.getElementById("cartao").selectedIndex;
+	var cartao = document.getElementById("cartao").options[i_cartao].text;
+
+	var valor = document.getElementById("valor");
+
+	enviar_pedido(qtd_item1, qtd_item2, qtd_parcelas, cartao, valor.innerHTML);
+}
+
+function enviar_pedido(qtd_item1, qtd_item2, parcelas, cartao, valor) {
+
+	var pedido = `{"comprador":{"aniversario":"1991-05-20T00:00:00","documento":"12345678900","email":"fulano@gmail.com","telefone":"552122225555","celular":"5521999995555","nome":"Fulano Silva","tipo":"pessoa_fisica","endereco":{"cidade":"Rio de Janeiro","complemento":"Apto 1011","pais":"Brazil","bairro":"Centro","numero":"123","estado":"RJ","logradouro":"Rua Souza","cep":"23021130"}},"pagamento":{"valor":"${valor}","parcelas":"${parcelas}","endereco_cobranca":{"cidade":"Rio de Janeiro","complemento":"Apto 1011","pais":"Brazil","bairro":"Centro","numero":"123","estado":"RJ","logradouro":"Rua Souza","cep":"23021130"},"cartao":{"bandeira":"Visa","numero_cartao":"${cartao}","mes_vencimento":"10","ano_vencimento":"2022","nome_cartao":"JOÃO SILVA","cvv":"321"}},"carrinho":{"items":[{"produto":"Discos Vinil","quantidade":${qtd_item1},"valor_unit":10},{"produto":"Toca Vinil","quantidade":${qtd_item2},"valor_unit":100}]}}`;
+	
+	fetch("http://localhost:8080/pedidos", {"method":"POST","headers":{"Content-Type":"application/json"}, "body": pedido})
+		.then(response => { return response.text(); })
+		.then(body => {
+			var d = document.getElementById('respostas_resultado');
+			d.innerHTML = `${body} ... ${_dt_brl().substr(11,13)} <br>${d.innerHTML}`;
+		})
+		.catch(err => {
+		  console.error(err);
+		  var d = document.getElementById('respostas_resultado');
+			d.innerHTML = `ERRO! ... ${_dt_brl().substr(11,13)} <br>${d.innerHTML}`;
+		})
+		.finally(() => { 
+			if(qtd_rand > 0) 
+			{
+				qtd_rand--;
+				atualiza_res_rand();
+			}
+		});
+}
+
+var qtd_p=0;
+var qtd_c=0;
+function monitora_filas() {
+	var s;
+	fetch('http://127.0.0.1:8080/info_filas')
+	//fetch('http://localhost:8080/info_filas')
+	  .then(response => { return response.json(); })
+	  .then(json => { 
+	  	if(json.publish > qtd_p || json.deliver_get > qtd_c)
+	  	{
+		  	qtd_p = json.publish;
+		  	qtd_c = json.deliver_get;
+		  	var d = document.getElementById('respostas_fila');
+		  	var m = `${_dt_brl().substr(11,8)}-> msg publicadas: <strong>${qtd_p}</strong>,`;
+			d.innerHTML = `${m} mgs consumidas: <strong>${qtd_c}</strong>, aguardando na fila: <strong>${qtd_p - qtd_c}</strong><br>${d.innerHTML}`;
+		}
+	  });
+	
+}
+var intervalo_filas = window.setInterval(function() { monitora_filas() }, 1000);
+//window.setTimeout(function() { clearInterval(intervalo_filas); }, 10000);
+</script>
+
+
+</body>
+</html>
