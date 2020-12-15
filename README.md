@@ -43,9 +43,15 @@ A fila "pagamentos" é criada automaticamente.
 A coleção "pagamentos" é criada automaticamente.
 
 ### TODO:
-- gráficos das filas
+- gráficos das filas :neutral_face:
 - benchmark das etapas de pagamento
 - implementar non-blocking I/O no worker 
 - testes unitários e de integração
 - revisão da arquitetura do software
 - diagramar o desenho da solução
+- logs, logs, logs :confused:
+- circuit breaker no start do worker de pagamento
+- desacoplar GUI
+- variáveis de ambiente configuráveis
+- toogle no polling do gráfico de filas
+- atualização do gráfico de filas via websocket
