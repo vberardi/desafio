@@ -12,7 +12,20 @@ $exchange = 'direct.exchange';
 $queue = 'pagamentos';
 $consumerTag = 'consumer';
 
-$connection = new AMQPStreamConnection('10.5.0.20', 5672, 'guest', 'guest', '/');
+$n = 0;
+while(true) 
+{
+    try {
+        $connection = new AMQPStreamConnection('10.5.0.20', 5672, 'guest', 'guest', '/');
+        echo 'Aêêêêê... o RabbitMQ saiu da toca...'."\n";
+        break;
+    } catch (Throwable $t) {
+        echo 'Cadê o RabbitMQ? '.$n.', '.$t->getMessage()."\n";
+        sleep(1);
+        $n++;
+    }
+}
+
 $channel = $connection->channel();
 
 $channel->queue_declare($queue, false, true, false, false);
@@ -52,7 +65,7 @@ function shutdown($channel, $connection)
 
 register_shutdown_function('shutdown', $channel, $connection);
 
-echo ' worker de pagamento rodando...'."\n";
+echo 'Worker de Pagamento rodando...'."\n";
 
 while ($channel->is_consuming()) {
     $channel->wait();

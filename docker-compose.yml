@@ -51,7 +51,7 @@ services:
     networks:
       desafio:
         ipv4_address: 10.5.0.40
-    command: bash -c "composer install --working-dir=/var/www/html/ && sleep 10 && php /var/www/html/worker.php"
+    command: bash -c "composer install --working-dir=/var/www/html/ && php /var/www/html/worker.php"
 
 networks:
   desafio:
