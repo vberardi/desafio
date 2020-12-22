@@ -6,7 +6,8 @@ docker-compose up -d
 ```
 Será construída uma imagem do PHP 7.4 com suporte a CLI, Composer, RabbitMQ e MongoDB.
 
-Serão iniciados 4 containers conforme lista abaixo:
+Serão iniciados 5 containers conforme lista abaixo:
+- Portainer CE 2.0;
 - RabbitMQ 3.6;
 - MongoDB 4.2;
 - PHP 7.4 com API Pedidos (Lumen 7);
@@ -42,6 +43,13 @@ A fila "pagamentos" é criada automaticamente.
 
 A coleção "pagamentos" é criada automaticamente.
 
+## Dados para acesso ao Portainer:
+[http://localhost:9000](http://localhost:9000)
+```
+  u: admin
+  s: 1234
+```
+
 ### TODO:
 - gráficos das filas :neutral_face:
 - benchmark das etapas de pagamento 
@@ -55,3 +63,5 @@ A coleção "pagamentos" é criada automaticamente.
 - variáveis de ambiente configuráveis
 - toogle no polling do gráfico de filas
 - atualização do gráfico de filas via websocket
+- tracing distribuido com ELK
+- <strike>portainer para visibilidade dos containers</strike> :mag:
