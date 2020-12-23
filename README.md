@@ -61,7 +61,7 @@ A coleção "pagamentos" é criada automaticamente.
 - <strike>circuit breaker no start do worker de pagamento</strike> :sunglasses:
 - desacoplar GUI
 - variáveis de ambiente configuráveis
-- toogle no polling do gráfico de filas
+- <strike>toogle no polling do gráfico de filas</strike>
 - atualização do gráfico de filas via websocket
 - tracing distribuido com ELK
 - <strike>portainer para visibilidade dos containers</strike> :mag:

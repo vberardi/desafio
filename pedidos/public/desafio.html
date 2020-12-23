@@ -11,6 +11,7 @@
 		.b{ border:1px solid; width: 90%; height: 90%; margin: 5px 0; padding: 5px; background-color: white;}
 		#respostas_resultado, #random_resultado, #respostas_fila{ overflow: auto; font-size: 12px;}
 		.l{font-size: 10px; cursor: pointer; color: blue; text-decoration: underline;}
+		.gf{font-size: 10px;}
 		table, th, td { border: 1px solid; border-collapse: collapse; padding: 2px;}
 		.c{ background-color: #ccc; }
 		.ac{align: center;}
@@ -54,14 +55,20 @@
 
 
 <div id="grafico_filas">
-	<strong>grafico_filas</strong>
+	<strong>grafico_filas</strong>&nbsp
+	<span class="gf l" id="gf_off" onclick="grafico_filas('off')">off</span>&nbsp
+	<span class="gf l" id="gf_1" onclick="grafico_filas(1)">1 seg</span>&nbsp
+	<span class="gf l" id="gf_2" onclick="grafico_filas(2)">2 seg</span>&nbsp
+	<span class="gf l" id="gf_5" onclick="grafico_filas(5)">5 seg</span>&nbsp
+	<span class="gf l" id="gf_30" onclick="grafico_filas(30)">30 seg</span>&nbsp
+	<span id="relogio" style="color:gray; font-size: 18px;">&#9679;</span>
 	<div id="respostas_fila" class="b"></div>
 </div>
 
 
 <div id="respostas">
 	<strong>respostas</strong> 
-	<span  class="l" onclick="limpa_respostas()">limpar</span>
+	<span class="l" onclick="limpa_respostas()">limpar</span>
 	<div class="b" id="respostas_resultado"></div>
 </div>
 
@@ -182,11 +189,13 @@ function enviar_pedido(qtd_item1, qtd_item2, parcelas, cartao, valor) {
 var qtd_p=0;
 var qtd_c=0;
 function monitora_filas() {
-	var s;
+	var r = document.querySelector('#relogio');
+	r.style.color = 'yellow';
 	fetch('http://127.0.0.1:8080/info_filas')
 	//fetch('http://localhost:8080/info_filas')
 	  .then(response => { return response.json(); })
 	  .then(json => { 
+	  	var g = setTimeout(function() { r.style.color = 'gray' }, 300);
 	  	if(json.publish > qtd_p || json.deliver_get > qtd_c)
 	  	{
 		  	qtd_p = json.publish;
@@ -195,13 +204,24 @@ function monitora_filas() {
 		  	var m = `${_dt_brl().substr(11,8)}-> msg publicadas: <strong>${qtd_p}</strong>,`;
 			d.innerHTML = `${m} mgs consumidas: <strong>${qtd_c}</strong>, aguardando na fila: <strong>${qtd_p - qtd_c}</strong><br>${d.innerHTML}`;
 		}
-	  });
-	
+	  });	
 }
-var intervalo_filas = window.setInterval(function() { monitora_filas() }, 1000);
-//window.setTimeout(function() { clearInterval(intervalo_filas); }, 10000);
-</script>
 
+var intervalo_filas;
+function grafico_filas(tempo){
+	var elems = document.querySelectorAll(".gf");
+	[].forEach.call(elems, function(el) { el.classList.add("l"); });
+	var element = document.getElementById(`gf_${tempo}`);
+  	element.classList.remove("l");
+	clearInterval(intervalo_filas);
+	if(tempo !== 'off')
+	{
+		intervalo_filas = window.setInterval(function() { monitora_filas() }, tempo * 1000);
+	}
+}
+grafico_filas(2);
+
+</script>
 
 </body>
 </html>
