@@ -16,6 +16,7 @@
 		.c{ background-color: #ccc; }
 		.ac{align: center;}
 	</style>
+	<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 </head>
 <body>
 
@@ -62,9 +63,12 @@
 	<span class="gf l" id="gf_5" onclick="grafico_filas(5)">5 seg</span>&nbsp
 	<span class="gf l" id="gf_30" onclick="grafico_filas(30)">30 seg</span>&nbsp
 	<span id="relogio" style="color:gray; font-size: 18px;">&#9679;</span>
-	<div id="respostas_fila" class="b"></div>
+	<div id="respostas_fila" class="b">
+		<div id="grafico" style="position:absolute;float: fixed;"></div>
+		<div id="msgs" style="width: 220px; float: right; margin-top: 10px; font-size: 10px;"></div>
+	</div>
+	
 </div>
-
 
 <div id="respostas">
 	<strong>respostas</strong> 
@@ -72,15 +76,12 @@
 	<div class="b" id="respostas_resultado"></div>
 </div>
 
-
-
 <script>
 function _dt_brl() {
 	var date = new Date();
 	date.setHours(date.getHours() - 3);
 	return date.toISOString().replace('T','_').replace('Z','');
 }
-
 
 function popula_select(sel, qte, idx) {
 	var select = document.getElementById(sel);
@@ -186,8 +187,10 @@ function enviar_pedido(qtd_item1, qtd_item2, parcelas, cartao, valor) {
 		});
 }
 
-var qtd_p=0;
-var qtd_c=0;
+var qtd_p = 0;
+var qtd_c = 0;
+var naFila = 0;
+
 function monitora_filas() {
 	var r = document.querySelector('#relogio');
 	r.style.color = 'yellow';
@@ -200,9 +203,10 @@ function monitora_filas() {
 	  	{
 		  	qtd_p = json.publish;
 		  	qtd_c = json.deliver_get;
-		  	var d = document.getElementById('respostas_fila');
-		  	var m = `${_dt_brl().substr(11,8)}-> msg publicadas: <strong>${qtd_p}</strong>,`;
-			d.innerHTML = `${m} mgs consumidas: <strong>${qtd_c}</strong>, aguardando na fila: <strong>${qtd_p - qtd_c}</strong><br>${d.innerHTML}`;
+		  	naFila = qtd_p - qtd_c;
+		  	var d = document.getElementById('msgs');
+		  	var m = `${_dt_brl().substr(11,8)}-> IN: <strong>${qtd_p}</strong>,`;
+			d.innerHTML = `${m} OUT: <strong>${qtd_c}</strong>, na fila: <strong>${naFila}</strong><br>${d.innerHTML}`;
 		}
 	  });	
 }
@@ -221,6 +225,71 @@ function grafico_filas(tempo){
 }
 grafico_filas(2);
 
+</script>
+
+<style>
+.line {
+  fill: none;
+  stroke: blue;
+  stroke-width: 1px;
+}
+
+svg {
+  font: 10px sans-serif; 
+  background-color: #f7e6cd;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+</style>
+ 
+<script>
+(function() {
+
+var n = 60;
+var duration = 1000;
+var now = new Date(Date.now() - duration);
+var count = 0;
+var data = d3.range(n).map(function() { return 0; });
+
+var margin = {top: 5, right: 5, bottom: 20, left: 0};
+var width = 280;
+var height = 90;
+
+var x = d3.time.scale().domain([now - (n - 2) * duration, now - duration]).range([0, width]);
+var y = d3.scale.linear().range([height, 0]);
+
+var line = d3.svg.line().interpolate("basis").x(function(d, i) { return x(now - (n - 1 - i) * duration); }).y(function(d, i) { return y(d); });
+
+var svg = d3.select("#grafico").append("p").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom)
+    .style("margin-left", -margin.left + "px").append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+svg.append("defs").append("clipPath").attr("id", "clip").append("rect").attr("width", width).attr("height", height);
+
+var axis = svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(x.axis = d3.svg.axis().scale(x).orient("bottom"));
+var path = svg.append("g").attr("clip-path", "url(#clip)").append("path").datum(data).attr("class", "line");
+
+var transition = d3.select({}).transition().duration(duration).ease("linear");
+
+
+(function tick() {
+  transition = transition.each(function() {
+    now = new Date();
+    x.domain([now - (n - 2) * duration, now - duration]);  
+    y.domain([0, d3.max(data)]);
+    data.push(naFila);
+    count = 0;
+    svg.select(".line").attr("d", line).attr("transform", null);
+    axis.call(x.axis);
+    path.transition().attr("transform", "translate(" + x(now - (n - 1) * duration) + ")");
+    data.shift();
+  }).transition().each("start", tick);
+})();
+
+})()
 </script>
 
 </body>

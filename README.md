@@ -51,7 +51,7 @@ A coleção "pagamentos" é criada automaticamente.
 ```
 
 ### TODO:
-- gráficos das filas :neutral_face:
+- <strike>gráficos das filas :neutral_face:</strike> :relieved:
 - benchmark das etapas de pagamento 
 - implementar non-blocking I/O no worker 
 - testes unitários e de integração
