@@ -14,7 +14,7 @@ Serão iniciados 5 containers conforme lista abaixo:
 - PHP 7.4 com Worker Pagamentos;
 
 ## Solução:
-![Solução](solucao.jpg)
+![Solução](solucao_v2.png)
 
 ## GUI para teste da solução:
 ![GUI](gui.png)
@@ -56,7 +56,7 @@ A coleção "pagamentos" é criada automaticamente.
 - implementar non-blocking I/O no worker 
 - testes unitários e de integração
 - revisão da arquitetura do software
-- diagramar o desenho da solução
+- <strike>diagramar o desenho da solução</strike>
 - logs, logs, logs :confused:
 - <strike>circuit breaker no start do worker de pagamento</strike> :sunglasses:
 - desacoplar GUI
